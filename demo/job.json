@@ -1,0 +1,15 @@
+{
+  "tasks": [{
+    "exec": "pwd",
+    "args": []
+  },{
+    "exec": "pwd",
+    "args": []
+  },{
+    "exec": "pwd",
+    "args": []
+  },{
+    "exec": "pwd",
+    "args": []
+  }]
+}
