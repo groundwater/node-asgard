@@ -1,15 +1,18 @@
 {
   "tasks": [{
-    "exec": "pwd",
-    "args": []
+    "exec": "echo",
+    "args": ["one"]
   },{
-    "exec": "pwd",
-    "args": []
+    "exec": "sleep",
+    "args": ["4"]
   },{
-    "exec": "pwd",
-    "args": []
+    "exec": "echo",
+    "args": ["pid $pid exited $exit after $time"]
   },{
-    "exec": "pwd",
-    "args": []
+    "exec": "sleep",
+    "args": ["4"]
+  },{
+    "exec": "echo",
+    "args": ["pid $pid exited $exit after $time"]
   }]
 }

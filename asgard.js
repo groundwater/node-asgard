@@ -8,6 +8,7 @@ import Martini from 'martini'
 class Server {
   constructor() {
     this.tasks = []
+    this.envs = {}
   }
   submitJob(job) {
     let {tasks} = job
@@ -23,19 +24,41 @@ class Server {
   }
   run(task) {
     let {exec, args} = task
+
+    exec = this._substr(exec)
+    args = args.map(i => this._substr(i))
+
+    let start = Date.now()
     let proc = spawn(exec, args, {stdio: 'inherit'})
 
     proc.on('error', function(err){
       console.log(`Error ${err}`)
     })
 
-    proc.on('exit', function(code, signal){
-      console.log(`Exited ${code}/${signal}`)
+    let {envs} = this
+
+    proc.on('exit', function(exit, signal){
+      let time = Date.now() - start
+
+      envs.pid    = proc.pid
+      envs.time   = time
+      envs.exit   = exit
+      envs.signal = signal
 
       setImmediate(check)
     })
 
     var check = () => this.check()
+  }
+  _substr(string) {
+    let {envs} = this
+
+    return Object.keys(envs).reduce((curr, term) => {
+      let re = new RegExp(`\\$${term}`, 'g')
+      let ne = curr.replace(re, envs[term])
+
+      return ne
+    }, string)
   }
 }
 
