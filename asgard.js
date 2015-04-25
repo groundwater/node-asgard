@@ -7,35 +7,46 @@ import Martini from 'martini'
 
 class Server {
   constructor() {
-    this.tasks = []
-    this.envs = {}
+    this.tasks  = {}
+    this.envs   = {}
+    this.active = {}
   }
-  submitJob(job) {
+  _tasks(name) {
+    if (!this.tasks[name]) {
+      this.tasks[name] = []
+    }
+
+    return this.tasks[name]
+  }
+  submitJob(job, {name}) {
     let {tasks} = job
 
-    tasks.forEach(task => this.tasks.push(task))
+    job.tasks.forEach(task => this._tasks(name).push(task))
 
-    setImmediate(_ => this.check())
+    setImmediate(_ => this.check(name))
   }
-  check() {
-    let task = this.tasks.shift()
+  check(name) {
+    // skip if already active
+    if (this.active[name]) return
 
-    if (task) this.run(task)
+    let task = this._tasks(name).shift()
+
+    if (task) this.run(name, task)
   }
-  run(task) {
+  run(name, task) {
     let {exec, args} = task
+    let {envs, active} = this
 
     exec = this._substr(exec)
     args = args.map(i => this._substr(i))
 
     let start = Date.now()
+
     let proc = spawn(exec, args, {stdio: 'inherit'})
 
     proc.on('error', function(err){
       console.log(`Error ${err}`)
     })
-
-    let {envs} = this
 
     proc.on('exit', function(exit, signal){
       let time = Date.now() - start
@@ -45,10 +56,14 @@ class Server {
       envs.exit   = exit
       envs.signal = signal
 
+      active[name] = null
+
       setImmediate(check)
     })
 
-    var check = () => this.check()
+    this.active[name] = proc
+
+    var check = () => this.check(name)
   }
   _substr(string) {
     let {envs} = this

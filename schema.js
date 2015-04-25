@@ -24,7 +24,7 @@ export const jobSchema = {
     submitJob: {
       proto: {
         method: 'POST',
-        route: '/job',
+        route: '/job/:name',
       },
       input: 'job',
       output: 'json'
